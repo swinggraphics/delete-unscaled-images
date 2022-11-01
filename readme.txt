@@ -3,7 +3,7 @@ Contributors: swinggraphics
 Tags: images, media uploader
 Requires at least: 5.3
 Tested up to: 6.1
-Stable tag: trunk
+Stable tag: 1.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/lgpl-2.1.html
 
