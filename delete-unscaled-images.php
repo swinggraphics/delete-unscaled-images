@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Delete Unscaled Images
- * Version: 1.2.2
+ * Version: 1.2.3
  * Description: Deletes original image files if they have been resized.
  * Author: Greg Perham
  * Author URI: https://github.com/swinggraphics?tab=repositories
@@ -76,7 +76,7 @@ function sgdui_bulk_delete_unscaled_images() {
 	if ( $attachments ) {
 		echo '<ul style="column-width: 30ch;">';
 		foreach ( $attachments as $attachment ) {
-			echo "<li>ID $attachment->ID: ";
+			echo '<li>ID ' . strip_tags( $attachment->ID ) . ': ';
 			$metadata = wp_get_attachment_metadata( $attachment->ID );
 			if ( empty( $metadata['original_image'] ) ) {
 				_e( 'No unscaled original', 'sgdui' );
@@ -88,13 +88,13 @@ function sgdui_bulk_delete_unscaled_images() {
 					printf(
 						/* translators: %s is replaced by file name */
 						__( 'Deleted %s', 'sgdui' ),
-						$original_image
+						strip_tags( $original_image )
 					);
 				} else {
 					printf(
 						/* translators: %s is replaced by file name */
 						__( 'Error deleting %s', 'sgdui' ),
-						$original_image
+						strip_tags( $original_image )
 					);
 				}
 			}
