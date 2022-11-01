@@ -12,7 +12,7 @@ msgstr ""
 "POT-Creation-Date: 2022-10-29T07:18:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
-"X-Domain: sg_dui\n"
+"X-Domain: sgdui\n"
 
 #. Plugin Name of the plugin
 msgid "Delete Unscaled Images"
