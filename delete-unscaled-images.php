@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Delete Unscaled Images
- * Version: 1.2.3
+ * Version: 1.2.4
  * Description: Deletes original image files if they have been resized.
  * Author: Greg Perham
  * Author URI: https://github.com/swinggraphics?tab=repositories
@@ -52,11 +52,20 @@ function sgdui_bulk_unscaled_menu_item() {
 add_action( 'admin_menu', 'sgdui_bulk_unscaled_menu_item' );
 
 function sgdui_admin_page() {
+	$url = add_query_arg( array(
+		'action' => 'do-bulk-delete',
+		'nonce' => wp_create_nonce( 'sgdui_bulk_delete_unscaled_images' ),
+	) );
 	?>
 	<div class="wrap">
 		<h1><?php _e( 'Bulk Delete Unscaled Images', 'sgdui' ); ?></h1>
-		<p><strong><a href="upload.php?page=sg-unscaled-images&action=do-bulk-delete"><?php _e( 'Delete all original, unscaled image files.', 'sgdui' ); ?></a></strong></p>
-		<?php if ( isset( $_GET['action'] ) && 'do-bulk-delete' == $_GET['action'] ) :
+		<p><strong><a href="<?php echo esc_url( $url ); ?>"><?php _e( 'Delete all original, unscaled image files.', 'sgdui' ); ?></a></strong></p>
+		<?php
+		if ( isset( $_GET['action'] )
+		  && isset( $_GET['nonce'] )
+		  && 'do-bulk-delete' === $_GET['action']
+		  && wp_verify_nonce( $_GET['nonce'], 'sgdui_bulk_delete_unscaled_images' )
+		  ) :
 			sgdui_bulk_delete_unscaled_images();
 		?>
 			<p><strong><?php _e( 'Done!', 'sgdui' ); ?></strong></p>
@@ -66,6 +75,7 @@ function sgdui_admin_page() {
 }
 
 function sgdui_bulk_delete_unscaled_images() {
+	if ( ! current_user_can( 'install_plugins' ) ) return;
 	$args = array(
 		'post_type' => 'attachment',
 		'numberposts' => -1,
