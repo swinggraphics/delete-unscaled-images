@@ -13,7 +13,6 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'SGDUI_VERSION', '2.0.0' );
 define( 'SGDUI_BATCH_SIZE', 100 );
 
 /**
