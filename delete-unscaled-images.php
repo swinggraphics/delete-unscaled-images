@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Delete Unscaled Images
- * Version: 2.0.0
+ * Version: 2.0.1
  * Description: Safely scans for and deletes original images retained after WordPress creates -scaled versions.
  * Author: Greg Perham
  * Author URI: https://github.com/swinggraphics/delete-unscaled-images
@@ -56,9 +56,9 @@ function sgdui_get_file_pair( $attachment_id, $metadata = null ) {
 	}
 
 	$original_file = wp_normalize_path( path_join( dirname( $scaled_file ), $original_name ) );
-	$scaled_file    = wp_normalize_path( $scaled_file );
-	$uploads        = wp_get_upload_dir();
-	$uploads_base   = trailingslashit( wp_normalize_path( $uploads['basedir'] ) );
+	$scaled_file   = wp_normalize_path( $scaled_file );
+	$uploads       = wp_get_upload_dir();
+	$uploads_base  = trailingslashit( wp_normalize_path( $uploads['basedir'] ) );
 
 	if (
 		$original_file === $scaled_file ||
@@ -162,27 +162,27 @@ function sgdui_admin_page() {
 	(function () {
 		'use strict';
 
-		const ajaxUrl  = <?php echo wp_json_encode( $ajax_url ); ?>;
-		const nonce    = <?php echo wp_json_encode( $nonce ); ?>;
-		const scanBtn  = document.getElementById('sgdui-scan');
-		const deleteBtn = document.getElementById('sgdui-delete');
-		const progress = document.getElementById('sgdui-progress');
-		const bar      = progress.querySelector('progress');
-		const status   = document.getElementById('sgdui-status');
-		const result   = document.getElementById('sgdui-result');
-		const resultText = result.querySelector('p');
+		const ajaxUrl    = <?php echo wp_json_encode( $ajax_url ); ?>;
+		const nonce      = <?php echo wp_json_encode( $nonce ); ?>;
+		const scanBtn    = document.getElementById( 'sgdui-scan' );
+		const deleteBtn  = document.getElementById( 'sgdui-delete' );
+		const progress   = document.getElementById( 'sgdui-progress' );
+		const bar        = progress.querySelector( 'progress' );
+		const status     = document.getElementById( 'sgdui-status' );
+		const result     = document.getElementById( 'sgdui-result' );
+		const resultText = result.querySelector( 'p' );
 
 		let running = false;
 		let scanTotals = null;
 
-		function bytes(bytes) {
-			if (!bytes) return '0 B';
+		function bytes( bytes ) {
+			if ( ! bytes ) return '0 B';
 			const units = ['B', 'KB', 'MB', 'GB', 'TB'];
 			const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
 			return (bytes / Math.pow(1024, index)).toFixed(index ? 2 : 0) + ' ' + units[index];
 		}
 
-		async function request(mode, cursor) {
+		async function request( mode, cursor ) {
 			const body = new URLSearchParams({
 				action: 'sgdui_process_images',
 				nonce: nonce,
@@ -205,25 +205,25 @@ function sgdui_admin_page() {
 		}
 
 		async function run(mode) {
-			if (running) return;
+			if ( running ) return;
 
-			if (mode === 'delete' && !window.confirm(
-				'Delete ' + scanTotals.files + ' originals and recover approximately ' + bytes(scanTotals.bytes) + '? This cannot be undone.'
-			)) return;
+			if ( 'delete' === mode && ! window.confirm(
+				'Delete ' + scanTotals.files + ' originals and recover approximately ' + bytes( scanTotals.bytes ) + '? This cannot be undone.'
+			) ) return;
 
 			running = true;
 			scanBtn.disabled = true;
 			deleteBtn.disabled = true;
 			progress.hidden = false;
 			result.hidden = true;
-			bar.removeAttribute('value');
+			bar.removeAttribute( 'value' );
 
 			let cursor = 0;
 			let totals = {processed: 0, files: 0, bytes: 0, deleted: 0, failed: 0};
 
 			try {
 				do {
-					const batch = await request(mode, cursor);
+					const batch = await request( mode, cursor );
 					cursor = batch.next_cursor;
 					totals.processed += batch.processed;
 					totals.files += batch.files;
@@ -231,37 +231,37 @@ function sgdui_admin_page() {
 					totals.deleted += batch.deleted;
 					totals.failed += batch.failed;
 
-					status.textContent = 'Processed ' + totals.processed + ' attachments; found ' + totals.files + ' originals (' + bytes(totals.bytes) + ').';
-					if (batch.done) break;
-				} while (true);
+					status.textContent = 'Processed ' + totals.processed + ' attachments; found ' + totals.files + ' originals (' + bytes( totals.bytes ) + ').';
+					if ( batch.done ) break;
+				} while ( true );
 
 				bar.value = 100;
 				result.className = 'notice notice-success inline';
 				result.hidden = false;
 
-				if (mode === 'scan') {
+				if ( 'scan' === mode ) {
 					scanTotals = totals;
-					resultText.textContent = 'Scan complete: ' + totals.files + ' originals can recover approximately ' + bytes(totals.bytes) + '.';
+					resultText.textContent = 'Scan complete: ' + totals.files + ' originals can recover approximately ' + bytes( totals.bytes ) + '.';
 					deleteBtn.disabled = totals.files === 0;
 				} else {
-					resultText.textContent = 'Cleanup complete: deleted ' + totals.deleted + ' originals and recovered ' + bytes(totals.bytes) + '. Failures: ' + totals.failed + '.';
+					resultText.textContent = 'Cleanup complete: deleted ' + totals.deleted + ' originals and recovered ' + bytes( totals.bytes ) + '. Failures: ' + totals.failed + '.';
 					scanTotals = null;
 				}
-			} catch (error) {
+			} catch ( error ) {
 				result.className = 'notice notice-error inline';
 				result.hidden = false;
 				resultText.textContent = error.message;
 			} finally {
 				running = false;
 				scanBtn.disabled = false;
-				if (mode === 'scan' && scanTotals && scanTotals.files > 0) {
+				if ( 'scan' === mode && scanTotals && 0 < scanTotals.files ) {
 					deleteBtn.disabled = false;
 				}
 			}
 		}
 
-		scanBtn.addEventListener('click', function () { run('scan'); });
-		deleteBtn.addEventListener('click', function () { run('delete'); });
+		scanBtn.addEventListener( 'click', function () { run( 'scan' ); } );
+		deleteBtn.addEventListener( 'click', function () { run( 'delete' ); } );
 	}());
 	</script>
 	<?php
@@ -312,7 +312,7 @@ function sgdui_ajax_process_images() {
 	);
 
 	foreach ( $ids as $attachment_id ) {
-		$attachment_id        = (int) $attachment_id;
+		$attachment_id         = (int) $attachment_id;
 		$result['next_cursor'] = $attachment_id;
 		$metadata              = wp_get_attachment_metadata( $attachment_id );
 		$pair                  = sgdui_get_file_pair( $attachment_id, $metadata );

@@ -1,9 +1,9 @@
 === Delete Unscaled Images ===
-Contributors: swinggraphics
+Contributors: swinggraphics, rwky
 Tags: images, media uploader
-Requires at least: 5.3
-Tested up to: 6.1
-Stable tag: 1.2.4
+Requires at least: 6.5
+Tested up to: 7.1
+Stable tag: 2.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/lgpl-2.1.html
 
@@ -21,9 +21,21 @@ Second, there is a bulk deletion tool in the Media submenu to process existing i
 
 == Installation ==
 
-See the standard installation instructions at [WordPress.org](http://codex.wordpress.org/Managing_Plugins#Installing_Plugins) or [WPBeginner](http://www.wpbeginner.com/beginners-guide/step-by-step-guide-to-install-a-wordpress-plugin-for-beginners/).
+See the standard installation instructions at [WordPress.org](http://codex.wordpress.org/Managing_Plugins#Installing_Plugins).
 
 == Changelog ==
+
+= 2.0 =
+* Uses manage_options, so normal administrators can access it.
+* Processes attachments in batches of 100 via AJAX.
+* Handles 30k+ Media Libraries without loading everything into memory.
+* Adds a safe dry-run scan showing estimated savings.
+* Requires confirmation before deletion.
+* Validates that the active -scaled file exists.
+* Deletes only the original recorded in original_image.
+* Removes stale original_image metadata after deletion.
+* Continues deleting oversized originals automatically for future uploads.
+* Uses POST requests, nonces, capability checks and escaped output.
 
 = 1.2 =
 * Added bulk delete Media submenu page.
